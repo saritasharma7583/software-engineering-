@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .welcome-box {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background: #dc3545;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #c82333;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="welcome-box">
+      <h1 id="welcomeMessage">Welcome!</h1>
+      <button onclick="logout()">Log Out</button>
+    </div>
+
+    <script>
+      function getCookie(name) {
+          const cname = name + "=";
+          const decodedCookie = decodeURIComponent(document.cookie);
+          const ca = decodedCookie.split(';');
+          for (let i = 0; i < ca.length; i++) {
+              let c = ca[i].trim();
+              if (c.indexOf(cname) == 0) {
+                  return c.substring(cname.length, c.length);
+              }
+          }
+          return "";
+      }
+
+      function logout() {
+          // Clear cookies (expires them)
+          document.cookie = "userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          document.cookie = "userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          document.cookie = "userPassword=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          window.location.href = "index.html"; // redirect to login
+      }
+
+      // Show name if exists
+      const nameEncoded = getCookie("userName");
+      if (nameEncoded) {
+          const name = atob(nameEncoded);
+          document.getElementById("welcomeMessage").textContent = Welcome, ${name}!;
+      } else {
+          // If no name cookie, redirect back
+          window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>
