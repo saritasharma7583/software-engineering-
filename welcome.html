@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In / Sign Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        form {
+            display: none;
+            flex-direction: column;
+        }
+
+        form.active {
+            display: flex;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .toggle {
+            text-align: center;
+            margin-top: 10px;
+            color: blue;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 id="formTitle">Sign In</h2>
+
+        <form id="signinForm" class="active">
+            <div id="signinError" class="error"></div>
+            <input type="email" id="signinEmail" placeholder="Email" required>
+            <input type="password" id="signinPassword" placeholder="Password" required>
+            <button type="submit">Sign In</button>
+        </form>
+
+        <form id="signupForm">
+            <div id="signupError" class="error"></div>
+            <div id="signupSuccess" class="success"></div>
+            <input type="text" id="signupName" placeholder="Full Name" required>
+            <input type="email" id="signupEmail" placeholder="Email" required>
+            <input type="password" id="signupPassword" placeholder="Password" required>
+            <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <div class="toggle" onclick="toggleForms()">Don't have an account? Sign Up</div>
+    </div>
+
+    <script>
+        const signinForm = document.getElementById('signinForm');
+        const signupForm = document.getElementById('signupForm');
+        const toggleText = document.querySelector('.toggle');
+        const formTitle = document.getElementById('formTitle');
+
+        const signinError = document.getElementById('signinError');
+        const signupError = document.getElementById('signupError');
+        const signupSuccess = document.getElementById('signupSuccess');
+
+        function toggleForms() {
+            const isSignin = signinForm.classList.contains('active');
+            signinForm.classList.toggle('active');
+            signupForm.classList.toggle('active');
+            toggleText.textContent = isSignin ? "Already have an account? Sign In" : "Don't have an account? Sign Up";
+            formTitle.textContent = isSignin ? "Sign Up" : "Sign In";
+            signinError.textContent = '';
+            signupError.textContent = '';
+            signupSuccess.textContent = '';
+        }
+
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const cname = name + "=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(cname) == 0) {
+                    return c.substring(cname.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        signupForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+            signupError.textContent = '';
+            signupSuccess.textContent = '';
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!name || !email || !password || !confirmPassword) {
+                signupError.textContent = "All fields are required.";
+                return;
+            }
+
+            if (!emailRegex.test(email)) {
+                signupError.textContent = "Invalid email format.";
+                return;
+            }
+
+            if (password.length < 6) {
+                signupError.textContent = "Password must be at least 6 characters.";
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                signupError.textContent = "Passwords do not match.";
+                return;
+            }
+
+            // Store user data in cookies (simple base64 encoding for illustration)
+            setCookie("userName", btoa(name), 7);
+            setCookie("userEmail", btoa(email), 7);
+            setCookie("userPassword", btoa(password), 7);
+
+            signupSuccess.textContent = "Account created successfully. Please sign in.";
+            signupForm.reset();
+        });
+
+        signinForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            signinError.textContent = '';
+
+            const email = document.getElementById('signinEmail').value.trim();
+            const password = document.getElementById('signinPassword').value;
+
+            const storedEmail = atob(getCookie("userEmail") || "");
+            const storedPassword = atob(getCookie("userPassword") || "");
+
+            if (!email || !password) {
+                signinError.textContent = "Both fields are required.";
+                return;
+            }
+
+            if (email === storedEmail && password === storedPassword) {
+                window.location.href = "welcome.html";
+                signinForm.reset();
+            } else {
+                signinError.textContent = "Incorrect email or password.";
+            }
+        });
+    </script>
+</body>
+
+</html>
